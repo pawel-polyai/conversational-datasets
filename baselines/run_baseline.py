@@ -105,7 +105,7 @@ class Method(enum.Enum):
             return vector_based.VectorSimilarityMethod(
                 encoder=vector_based.BERTEncoder(
                     "https://tfhub.dev/google/"
-                    "   bert_uncased_L-12_H-768_A-12/1"))
+                    "bert_uncased_L-12_H-768_A-12/1"))
         elif self == self.BERT_SMALL_MAP:
             return vector_based.VectorMappingMethod(
                 encoder=vector_based.BERTEncoder(

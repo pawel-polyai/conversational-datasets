@@ -101,7 +101,9 @@ class BERTEncoder(Encoder):
                           texts]  # here, "" is just a dummy label
         input_features = run_classifier.convert_examples_to_features(input_examples, label_list, MAX_SEQ_LENGTH,
                             self.tokenizer)
-        input_ids = []; input_mask=[]; segment_ids=[]
+        input_ids = []
+        input_mask=[]
+        segment_ids=[]
 
         for feat in input_features:
             input_ids.append(feat.input_ids)
@@ -211,15 +213,6 @@ class VectorMappingMethod(method.BaselineMethod):
             context_encodings).astype(np.float32)
         response_encodings = np.concatenate(
             response_encodings).astype(np.float32)
-
-        np.save('context_encodings' , context_encodings)
-        np.save('response_encodings' , response_encodings)
-
-        try:
-            context_encodings = np.load('context_encodings.npy')
-            response_encodings = np.load('response_encodings.npy')
-        except:
-            pass
 
         return train_test_split(
             context_encodings, response_encodings,

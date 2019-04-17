@@ -36,7 +36,7 @@ def _parse_args():
         "--test_dataset", type=str, required=True,
         help="File pattern of test set.")
     parser.add_argument(
-        "--eval_num_batches", type=int, default=100, # pfb30
+        "--eval_num_batches", type=int, default=500,
         help="Number of batches to use in the evaluation.")
     parser.add_argument(
         "--output_file", type=str,
@@ -104,19 +104,23 @@ class Method(enum.Enum):
         elif self == self.BERT_SMALL_SIM:
             return vector_based.VectorSimilarityMethod(
                 encoder=vector_based.BERTEncoder(
-                    "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"))
+                    "https://tfhub.dev/google/"
+                    "   bert_uncased_L-12_H-768_A-12/1"))
         elif self == self.BERT_SMALL_MAP:
             return vector_based.VectorMappingMethod(
                 encoder=vector_based.BERTEncoder(
-                    "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"))
+                    "https://tfhub.dev/google/"
+                    "bert_uncased_L-12_H-768_A-12/1"))
         elif self == self.BERT_LARGE_SIM:
             return vector_based.VectorSimilarityMethod(
                 encoder=vector_based.BERTEncoder(
-                    "https://tfhub.dev/google/bert_uncased_L-24_H-1024_A-16/1"))
+                    "https://tfhub.dev/google/"
+                    "bert_uncased_L-24_H-1024_A-16/1"))
         elif self == self.BERT_LARGE_MAP:
             return vector_based.VectorMappingMethod(
                 encoder=vector_based.BERTEncoder(
-                    "https://tfhub.dev/google/bert_uncased_L-24_H-1024_A-16/1"))
+                    "https://tfhub.dev/google/"
+                    "bert_uncased_L-24_H-1024_A-16/1"))
         raise ValueError("Unknown method {}".format(self))
 
     def __str__(self):

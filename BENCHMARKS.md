@@ -25,9 +25,9 @@ These are results on the data from 2015 to 2018 inclusive,  (`TABLE_REGEX="^201[
 | ELMO_SIM         | 12.5%             	|
 | ELMO_MAP         | 20.6%             	|
 | BERT_SMALL_SIM         | XX%             	|
-| BERT_SMALL_MAP         | 5.1%             	|
-| BERT_LARGE_SIM         | XX%             	|
-| BERT_LARGE_MAP         | 2.6%             	|
+| BERT_SMALL_MAP         | 4.2%             	|
+| BERT_LARGE_SIM         | 2.8%             	|
+| BERT_LARGE_MAP         | 3.0%             	|
 | **Other models** |                    |
 | PolyAI-Encoder [1]	  | 61.3%             	|
 

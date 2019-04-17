@@ -30,13 +30,13 @@ def _parse_args():
         "--train_dataset", type=str, required=True,
         help="File pattern of train set.")
     parser.add_argument(
-        "--train_size", type=int, default=10000,
+        "--train_size", type=int, default=1000,
         help="Number of examples from the training set to use in training.")
     parser.add_argument(
         "--test_dataset", type=str, required=True,
         help="File pattern of test set.")
     parser.add_argument(
-        "--eval_num_batches", type=int, default=500,
+        "--eval_num_batches", type=int, default=10, # pfb30
         help="Number of batches to use in the evaluation.")
     parser.add_argument(
         "--output_file", type=str,
@@ -62,6 +62,9 @@ class Method(enum.Enum):
     USE_MAP = 6
     USE_LARGE_MAP = 7
     ELMO_MAP = 8
+
+    BERT_SMALL_SIM = 9
+    BERT_SMALL_MAP = 10
 
     def to_method_object(self):
         """Convert the enum to an instance of `BaselineMethod`."""
@@ -97,6 +100,14 @@ class Method(enum.Enum):
             return vector_based.VectorMappingMethod(
                 encoder=vector_based.TfHubEncoder(
                     "https://tfhub.dev/google/elmo/1"))
+        elif self == self.BERT_SMALL_SIM:
+            return vector_based.VectorSimilarityMethod(
+                encoder=vector_based.BERTEncoder(
+                    "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"))
+        elif self == self.BERT_SMALL_MAP:
+            return vector_based.VectorMappingMethod(
+                encoder=vector_based.BERTEncoder(
+                    "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"))
         raise ValueError("Unknown method {}".format(self))
 
     def __str__(self):
@@ -212,3 +223,4 @@ if __name__ == "__main__":
                 len(contexts_train), len(contexts_test),
                 args.recall_k, accuracy
             ])
+

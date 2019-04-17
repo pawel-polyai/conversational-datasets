@@ -4,6 +4,7 @@ import abc
 import itertools
 import shutil
 import tempfile
+import time
 
 import glog
 import numpy as np
@@ -59,6 +60,81 @@ class TfHubEncoder(Encoder):
         return self._session.run(self._embeddings, {self._fed_texts: texts})
 
 
+import bert
+from bert import run_classifier
+from bert import optimization
+from bert import tokenization
+IS_TRAINABLE = False
+
+
+class BERTEncoder(Encoder):
+    """An encoder that is loaded as a module from tensorflow hub.
+
+    The tensorflow hub module must take a vector of strings, and return
+    a matrix of encodings.
+
+    Args:
+        uri: (string) the tensorflow hub URI for the model.
+    """
+    def __init__(self, uri):
+        """Create a new `TfHubEncoder` object."""
+        self._session = tf.Session(graph=tf.Graph())
+        with self._session.graph.as_default():
+            glog.info("Loading %s model from tensorflow hub", uri)
+            self.embed_fn = tensorflow_hub.Module(uri, trainable=IS_TRAINABLE)
+            self.tokenizer = self.create_tokenizer_from_hub_module(uri)
+            #self._fed_texts = tf.placeholder(shape=[None], dtype=tf.string)
+            self.input_ids = tf.placeholder(shape=[None, None], dtype=tf.int32)
+            self.input_mask = tf.placeholder(shape=[None, None], dtype=tf.int32)
+            self.segment_ids = tf.placeholder(shape=[None, None], dtype=tf.int32)
+            bert_inputs = dict(
+                input_ids=self.input_ids, input_mask=self.input_mask, segment_ids=self.segment_ids
+            )
+            self.result = self.embed_fn(inputs=bert_inputs, signature="tokens", as_dict=True)[
+                "pooled_output"
+            ]
+
+            init_ops = (
+                tf.global_variables_initializer(), tf.tables_initializer())
+        glog.info("Initializing graph.")
+        self._session.run(init_ops)
+
+    def encode(self, texts):
+        """Encode the given texts."""
+        label_list = [0]
+        MAX_SEQ_LENGTH = 128
+
+        input_examples = [run_classifier.InputExample(guid="", text_a=x, text_b=None, label=0) for x in
+                          texts]  # here, "" is just a dummy label
+        input_features = run_classifier.convert_examples_to_features(input_examples, label_list, MAX_SEQ_LENGTH,
+                            self.tokenizer)
+        input_ids = []; input_mask=[]; segment_ids=[]
+
+        for feat in input_features:
+            input_ids.append(feat.input_ids)
+            input_mask.append(feat.input_mask)
+            segment_ids.append(feat.segment_ids)
+
+        return self._session.run(self.result, {self.input_ids: input_ids,self.input_mask: input_mask,
+                                 self.segment_ids: segment_ids})
+
+    # def encode(self, texts):
+    #     """Encode the given texts."""
+    #     return self._session.run(self._embeddings, {self._fed_texts: texts})
+
+    def create_tokenizer_from_hub_module(self, uri):
+        """Get the vocab file and casing info from the Hub module."""
+        with tf.Graph().as_default():
+            bert_module = tensorflow_hub.Module(uri)
+            tokenization_info = bert_module(signature="tokenization_info", as_dict=True)
+            with tf.Session() as sess:
+                vocab_file, do_lower_case = sess.run([tokenization_info["vocab_file"],
+                                                      tokenization_info["do_lower_case"]])
+
+        return bert.tokenization.FullTokenizer(
+            vocab_file=vocab_file, do_lower_case=do_lower_case)
+
+
 class VectorSimilarityMethod(method.BaselineMethod):
     """Ranks responses using cosine similarity of context & response vectors.
 
@@ -101,7 +177,7 @@ class VectorMappingMethod(method.BaselineMethod):
     def __init__(
         self,
         encoder,
-        learning_rates=(10.0, 3.0, 1.0, 0.3),
+        learning_rates=(10.0, 3.0, 1.0, 0.3, 0.01, 0.001, 0.0001), # pfb30
         regularizers=(0, 0.1, 0.01, 0.001),
     ):
         """Create a new `VectorMappingMethod` object."""
@@ -126,8 +202,9 @@ class VectorMappingMethod(method.BaselineMethod):
         self._grid_search()
 
     # Batch size to use when encoding texts.
-    _ENCODING_BATCH_SIZE = 100
-    _TRAIN_BATCH_SIZE = 256
+    #pfb30
+    _ENCODING_BATCH_SIZE = 10#0
+    _TRAIN_BATCH_SIZE = 25#6
     _MAX_EPOCHS = 100
 
     def _create_train_and_dev(self, contexts, responses):
@@ -146,6 +223,15 @@ class VectorMappingMethod(method.BaselineMethod):
             context_encodings).astype(np.float32)
         response_encodings = np.concatenate(
             response_encodings).astype(np.float32)
+
+        np.save('context_encodings' , context_encodings)
+        np.save('response_encodings' , response_encodings)
+        # try:
+        #     context_encodings = np.load('context_encodings.np1555457057.857146.npy')
+        #     response_encodings = np.load('response_encodings.np1555457057.8717482.npy')
+        # except:
+        #     pass
+
         return train_test_split(
             context_encodings, response_encodings,
             test_size=0.2)
@@ -220,6 +306,7 @@ class VectorMappingMethod(method.BaselineMethod):
         with tf.variable_scope("compute_similarities", reuse=(not is_train)):
             # Normalise the vectors so that the model is not dependent on
             # vector scaling.
+            # pfb30
             context_encodings = tf.nn.l2_normalize(context_encodings, 1)
             response_encodings = tf.nn.l2_normalize(response_encodings, 1)
             encoding_dim = int(context_encodings.shape[1])
@@ -349,3 +436,4 @@ class VectorMappingMethod(method.BaselineMethod):
             }
         )
         return np.argmax(similarities, axis=1)
+

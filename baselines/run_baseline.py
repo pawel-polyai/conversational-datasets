@@ -30,13 +30,13 @@ def _parse_args():
         "--train_dataset", type=str, required=True,
         help="File pattern of train set.")
     parser.add_argument(
-        "--train_size", type=int, default=1000,
+        "--train_size", type=int, default=10000,
         help="Number of examples from the training set to use in training.")
     parser.add_argument(
         "--test_dataset", type=str, required=True,
         help="File pattern of test set.")
     parser.add_argument(
-        "--eval_num_batches", type=int, default=10, # pfb30
+        "--eval_num_batches", type=int, default=100, # pfb30
         help="Number of batches to use in the evaluation.")
     parser.add_argument(
         "--output_file", type=str,
@@ -57,14 +57,15 @@ class Method(enum.Enum):
     USE_SIM = 3
     USE_LARGE_SIM = 4
     ELMO_SIM = 5
+    BERT_SMALL_SIM = 6
+    BERT_LARGE_SIM = 7
 
     # Vector mapping methods.
-    USE_MAP = 6
-    USE_LARGE_MAP = 7
-    ELMO_MAP = 8
-
-    BERT_SMALL_SIM = 9
-    BERT_SMALL_MAP = 10
+    USE_MAP = 8
+    USE_LARGE_MAP = 9
+    ELMO_MAP = 10
+    BERT_SMALL_MAP = 11
+    BERT_LARGE_MAP = 12
 
     def to_method_object(self):
         """Convert the enum to an instance of `BaselineMethod`."""

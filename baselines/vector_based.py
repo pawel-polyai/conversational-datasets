@@ -5,11 +5,11 @@ import itertools
 import shutil
 import tempfile
 
+import bert
 import glog
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub
-from bert import run_classifier, tokenization
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -34,7 +34,7 @@ class Encoder(object):
 
 
 class TfHubEncoder(Encoder):
-    """An encoder that is loaded as a module from tensorflow hub.
+    """encoder that is loaded as a module from tensorflow hub.
 
     The tensorflow hub module must take a vector of strings, and return
     a matrix of encodings.
@@ -60,34 +60,35 @@ class TfHubEncoder(Encoder):
         return self._session.run(self._embeddings, {self._fed_texts: texts})
 
 
-class BERTEncoder(Encoder):
-    """An encoder that is loaded as a module from tensorflow hub.
+class BERTHubEncoder(Encoder):
+    """The BERT encoder that is loaded as a module from tensorflow hub.
 
     The tensorflow hub module must take a vector of strings, and return
-    a matrix of encodings.
+    a matrix of encodings. The class differs from the TfHubEncoder one
+    as the input needs to be adapted differently.
 
     Args:
         uri: (string) the tensorflow hub URI for the model.
     """
     def __init__(self, uri):
-        """Create a new `TfHubEncoder` object."""
+        """Create a new `BERTHubEncoder` object."""
         self._session = tf.Session(graph=tf.Graph())
         with self._session.graph.as_default():
             glog.info("Loading %s model from tensorflow hub", uri)
-            self.embed_fn = tensorflow_hub.Module(uri, trainable=False)
-            self.tokenizer = self.create_tokenizer_from_hub_module(uri)
-            self.input_ids = tf.placeholder(shape=[None, None],
-                                            dtype=tf.int32)
-            self.input_mask = tf.placeholder(shape=[None, None],
+            embed_fn = tensorflow_hub.Module(uri, trainable=False)
+            self._tokenizer = self._create_tokenizer_from_hub_module(uri)
+            self._input_ids = tf.placeholder(shape=[None, None],
                                              dtype=tf.int32)
-            self.segment_ids = tf.placeholder(shape=[None, None],
+            self._input_mask = tf.placeholder(shape=[None, None],
                                               dtype=tf.int32)
+            self._segment_ids = tf.placeholder(shape=[None, None],
+                                               dtype=tf.int32)
             bert_inputs = dict(
-                input_ids=self.input_ids,
-                input_mask=self.input_mask,
-                segment_ids=self.segment_ids
+                input_ids=self._input_ids,
+                input_mask=self._input_mask,
+                segment_ids=self._segment_ids
             )
-            self.result = self.embed_fn(
+            self._embeddings = embed_fn(
                 inputs=bert_inputs, signature="tokens", as_dict=True)[
                 "pooled_output"
             ]
@@ -99,14 +100,14 @@ class BERTEncoder(Encoder):
 
     def encode(self, texts):
         """Encode the given texts."""
-        _LABEL_LIST = [0]
+        _LABEL_LIST = [0]  # dummy label
         _MAX_SEQ_LENGTH = 128
 
-        input_examples = [run_classifier.InputExample(
+        input_examples = [bert.run_classifier.InputExample(
             guid="", text_a=x, text_b=None, label=0)
             for x in texts]  # here, "" is just a dummy label
-        input_features = run_classifier.convert_examples_to_features(
-            input_examples, _LABEL_LIST, _MAX_SEQ_LENGTH, self.tokenizer)
+        input_features = bert.run_classifier.convert_examples_to_features(
+            input_examples, _LABEL_LIST, _MAX_SEQ_LENGTH, self._tokenizer)
         input_ids = []
         input_mask = []
         segment_ids = []
@@ -116,12 +117,13 @@ class BERTEncoder(Encoder):
             input_mask.append(feat.input_mask)
             segment_ids.append(feat.segment_ids)
 
-        return self._session.run(self.result,
-                                 {self.input_ids: input_ids,
-                                  self.input_mask: input_mask,
-                                  self.segment_ids: segment_ids})
+        return self._session.run(self._embeddings,
+                                 {self._input_ids: input_ids,
+                                  self._input_mask: input_mask,
+                                  self._segment_ids: segment_ids})
 
-    def create_tokenizer_from_hub_module(self, uri):
+    @staticmethod
+    def _create_tokenizer_from_hub_module(uri):
         """Get the vocab file and casing info from the Hub module."""
         with tf.Graph().as_default():
             bert_module = tensorflow_hub.Module(uri)
@@ -134,7 +136,7 @@ class BERTEncoder(Encoder):
                         tokenization_info["do_lower_case"]
                     ])
 
-        return tokenization.FullTokenizer(
+        return bert.tokenization.FullTokenizer(
             vocab_file=vocab_file, do_lower_case=do_lower_case)
 
 
@@ -180,7 +182,7 @@ class VectorMappingMethod(method.BaselineMethod):
     def __init__(
         self,
         encoder,
-        learning_rates=(10.0, 3.0, 1.0, 0.3, 0.01, 0.001, 0.0001),
+        learning_rates=(10.0, 3.0, 1.0, 0.3, 0.01),
         regularizers=(0, 0.1, 0.01, 0.001),
     ):
         """Create a new `VectorMappingMethod` object."""

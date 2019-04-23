@@ -5,10 +5,8 @@ import itertools
 import shutil
 import tempfile
 
-#import bert
-import bert.tokenization
 import bert.run_classifier
-
+import bert.tokenization
 import glog
 import numpy as np
 import tensorflow as tf

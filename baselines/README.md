@@ -21,7 +21,7 @@ The [vector-based methods](vector_based.py) use publicly available neural networ
 * [USE](https://tfhub.dev/google/universal-sentence-encoder/2) - the universal sentence encoder
 * [USE_LARGE](https://tfhub.dev/google/universal-sentence-encoder-large/3) - a larger version of the universal sentence encoder
 * [ELMO](https://tfhub.dev/google/elmo/1) - the Embeddings from Language Models approach
-* [BERT](https://tfhub.dev/google/bert/1) - the Embeddings from TODO approach
+* [BERT](https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1) - the Embeddings from deep bidirectional transformers
 
 all of which are loaded from Tensorflow Hub.
 

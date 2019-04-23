@@ -21,7 +21,8 @@ The [vector-based methods](vector_based.py) use publicly available neural networ
 * [USE](https://tfhub.dev/google/universal-sentence-encoder/2) - the universal sentence encoder
 * [USE_LARGE](https://tfhub.dev/google/universal-sentence-encoder-large/3) - a larger version of the universal sentence encoder
 * [ELMO](https://tfhub.dev/google/elmo/1) - the Embeddings from Language Models approach
-* [BERT](https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1) - the Embeddings from deep bidirectional transformers
+* [BERT_SMALL](https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1) - the Bidirectional Encoder Representations from Transformers approach
+* [BERT_LARGE](https://tfhub.dev/google/bert_uncased_L-24_H-1024_A-16/1) - a larger version of BERT
 
 all of which are loaded from Tensorflow Hub.
 
@@ -40,7 +41,7 @@ and <img alt="W and alpha" src="https://latex.codecogs.com/svg.latex?W,\:\alpha"
 
 The parameters are learned on the training set, using the dot product loss from [Henderson et al 2017](https://arxiv.org/abs/1705.00652). A sweep over learning rate and regularization parameters is performed using a held-out dev set. The final learned parameters are used on the evaluation set.
 
-The combination of the three embedding models with the two vector-based methods gives 10 baseline methods: `USE_SIM`, `USE_MAP`, `USE_LARGE_SIM`, `USE_LARGE_MAP`, `ELMO_SIM`, `ELMO_MAP`, `BERT_SMALL_SIM`, `BERT_SMALL_MAP`, `BERT_LARGE_SIM` and `BERT_LARGE_MAP`.
+The combination of the five embedding models with the two vector-based methods gives ten baseline methods: `USE_SIM`, `USE_MAP`, `USE_LARGE_SIM`, `USE_LARGE_MAP`, `ELMO_SIM`, `ELMO_MAP`, `BERT_SMALL_SIM`, `BERT_SMALL_MAP`, `BERT_LARGE_SIM` and `BERT_LARGE_MAP`.
 
 # Running the baselines
 

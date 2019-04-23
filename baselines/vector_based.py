@@ -5,8 +5,6 @@ import itertools
 import shutil
 import tempfile
 
-import bert.run_classifier
-import bert.tokenization
 import glog
 import numpy as np
 import tensorflow as tf
@@ -14,6 +12,8 @@ import tensorflow_hub
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
+import bert.run_classifier
+import bert.tokenization
 from baselines import method
 
 

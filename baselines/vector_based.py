@@ -64,9 +64,8 @@ class TfHubEncoder(Encoder):
 class BERTEncoder(Encoder):
     """The BERT encoder that is loaded as a module from tensorflow hub.
 
-    The tensorflow hub module must take a vector of strings, and return
-    a matrix of encodings. The class differs from the TfHubEncoder one
-    as the input needs to be adapted differently.
+    This class tokenizes the input text using the bert tokenization
+    library.
 
     Args:
         uri: (string) the tensorflow hub URI for the model.
@@ -103,14 +102,13 @@ class BERTEncoder(Encoder):
 
     def encode(self, texts):
         """Encode the given texts."""
-        _LABEL_LIST = [0]  # dummy label
-        _MAX_SEQ_LENGTH = 128
-
         input_examples = [bert.run_classifier.InputExample(
             guid="", text_a=x, text_b=None, label=0)
             for x in texts]  # here, "" is just a dummy label
+        label_list = [0]  # dummy label
+        max_seq_length = 128
         input_features = bert.run_classifier.convert_examples_to_features(
-            input_examples, _LABEL_LIST, _MAX_SEQ_LENGTH, self._tokenizer)
+            input_examples, label_list, max_seq_length, self._tokenizer)
         input_ids = []
         input_mask = []
         segment_ids = []
@@ -120,10 +118,11 @@ class BERTEncoder(Encoder):
             input_mask.append(feat.input_mask)
             segment_ids.append(feat.segment_ids)
 
-        return self._session.run(self._embeddings,
-                                 {self._input_ids: input_ids,
-                                  self._input_mask: input_mask,
-                                  self._segment_ids: segment_ids})
+        return self._session.run(
+            self._embeddings,
+            {self._input_ids: input_ids,
+             self._input_mask: input_mask,
+             self._segment_ids: segment_ids})
 
     @staticmethod
     def _create_tokenizer_from_hub_module(uri):

@@ -61,7 +61,7 @@ class TfHubEncoder(Encoder):
         return self._session.run(self._embeddings, {self._fed_texts: texts})
 
 
-class BERTHubEncoder(Encoder):
+class BERTEncoder(Encoder):
     """The BERT encoder that is loaded as a module from tensorflow hub.
 
     The tensorflow hub module must take a vector of strings, and return
@@ -72,7 +72,7 @@ class BERTHubEncoder(Encoder):
         uri: (string) the tensorflow hub URI for the model.
     """
     def __init__(self, uri):
-        """Create a new `BERTHubEncoder` object."""
+        """Create a new `BERTEncoder` object."""
         self._session = tf.Session(graph=tf.Graph())
         with self._session.graph.as_default():
             glog.info("Loading %s model from tensorflow hub", uri)
@@ -89,10 +89,12 @@ class BERTHubEncoder(Encoder):
                 input_mask=self._input_mask,
                 segment_ids=self._segment_ids
             )
-            self._embeddings = embed_fn(
+
+            embeddings = embed_fn(
                 inputs=bert_inputs, signature="tokens", as_dict=True)[
-                "pooled_output"
+                "sequence_output"
             ]
+            self._embeddings = tf.reduce_sum(embeddings, axis=1)
 
             init_ops = (
                 tf.global_variables_initializer(), tf.tables_initializer())

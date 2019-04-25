@@ -103,22 +103,22 @@ class Method(enum.Enum):
                     "https://tfhub.dev/google/elmo/1"))
         elif self == self.BERT_SMALL_SIM:
             return vector_based.VectorSimilarityMethod(
-                encoder=vector_based.BERTHubEncoder(
+                encoder=vector_based.BERTEncoder(
                     "https://tfhub.dev/google/"
                     "bert_uncased_L-12_H-768_A-12/1"))
         elif self == self.BERT_SMALL_MAP:
             return vector_based.VectorMappingMethod(
-                encoder=vector_based.BERTHubEncoder(
+                encoder=vector_based.BERTEncoder(
                     "https://tfhub.dev/google/"
                     "bert_uncased_L-12_H-768_A-12/1"))
         elif self == self.BERT_LARGE_SIM:
             return vector_based.VectorSimilarityMethod(
-                encoder=vector_based.BERTHubEncoder(
+                encoder=vector_based.BERTEncoder(
                     "https://tfhub.dev/google/"
                     "bert_uncased_L-24_H-1024_A-16/1"))
         elif self == self.BERT_LARGE_MAP:
             return vector_based.VectorMappingMethod(
-                encoder=vector_based.BERTHubEncoder(
+                encoder=vector_based.BERTEncoder(
                     "https://tfhub.dev/google/"
                     "bert_uncased_L-24_H-1024_A-16/1"))
         raise ValueError("Unknown method {}".format(self))

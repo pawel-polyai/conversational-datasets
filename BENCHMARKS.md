@@ -24,10 +24,10 @@ These are results on the data from 2015 to 2018 inclusive,  (`TABLE_REGEX="^201[
 | USE_LARGE_MAP    | 47.7%             	|
 | ELMO_SIM         | 12.5%             	|
 | ELMO_MAP         | 20.6%             	|
-| BERT_SMALL_SIM         | 3.8%             	|
-| BERT_SMALL_MAP         | 4.2%             	|
-| BERT_LARGE_SIM         | 2.8%             	|
-| BERT_LARGE_MAP         | 3.0%             	|
+| BERT_SMALL_SIM         | 14.4%             	|
+| BERT_SMALL_MAP         | 20.5%             	|
+| BERT_LARGE_SIM         | 10.6%             	|
+| BERT_LARGE_MAP         | 17.1%             	|
 | **Other models** |                    |
 | PolyAI-Encoder [1]	  | 61.3%             	|
 
@@ -45,10 +45,10 @@ These are results on the data from 2015 to 2018 inclusive,  (`TABLE_REGEX="^201[
 | USE_LARGE_MAP    | 18.0%             	|
 | ELMO_SIM         | 9.5%             	|
 | ELMO_MAP         | 13.3%             	|
-| BERT_SMALL_SIM         | 5.2%             	|
-| BERT_SMALL_MAP         | 5.2%             	|
-| BERT_LARGE_SIM         | 3.4%             	|
-| BERT_LARGE_MAP         | 3.3%             	|
+| BERT_SMALL_SIM         | 13.8%             	|
+| BERT_SMALL_MAP         | 17.3%             	|
+| BERT_LARGE_SIM         | 9.9%             	|
+| BERT_LARGE_MAP         | 14.2%             	|
 | **Other models** |                    |
 | PolyAI-Encoder [1]	  | 30.6%             	|
 
@@ -66,10 +66,10 @@ These are results on the data from 2015 to 2018 inclusive,  (`TABLE_REGEX="^201[
 | USE_LARGE_MAP    | 61.9%             	|
 | ELMO_SIM         | 16.0%             	|
 | ELMO_MAP         | 35.5%             	|
-| BERT_SMALL_SIM         | 2.4%             	|
-| BERT_SMALL_MAP         | 3.2%             	|
-| BERT_LARGE_SIM            | 1.8%             	|
-| BERT_LARGE_MAP         | 1.5%             	|
+| BERT_SMALL_SIM         | 16.1 %             	|
+| BERT_SMALL_MAP         | 37.6 %             	|
+| BERT_LARGE_SIM            | 12.3%          	|
+| BERT_LARGE_MAP         | 30.2%             	|
 | **Other models** |                    |
 | PolyAI-Encoder [1]	  | 84.2%             	|
 
